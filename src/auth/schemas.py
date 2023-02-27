@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime
 from enum import Enum
 from typing import Optional
+from typing import Union
 
 from pydantic import BaseModel
 
@@ -20,6 +22,7 @@ class UserCreate(BaseModel):
 class UserView(BaseModel):
     id: int
     username: str
+    age: Union[str, None]
     email: Optional[str]
     first_name: Optional[str]
     last_name: Optional[str]
@@ -29,9 +32,14 @@ class UserView(BaseModel):
 
 
 class FriendsView(BaseModel):
-    initiator_user: int
-    user: int
+    initiator_user_id: int
+    user_id: int
     state: FriendsState
 
     class Config:
         orm_mode = True
+
+
+class UserAdminView(UserView):
+    admin: bool
+    created_at: datetime

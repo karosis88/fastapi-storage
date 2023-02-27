@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e9fd9fe27a86
+Revision ID: ffc5d273c738
 Revises: 
-Create Date: 2023-02-27 08:54:32.153827
+Create Date: 2023-02-27 13:44:13.335440
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "e9fd9fe27a86"
+revision = "ffc5d273c738"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,9 +40,9 @@ def upgrade() -> None:
             sa.Enum("Requested", "Blocked", "Approved", name="friendsstate"),
             nullable=True,
         ),
+        sa.Column("blocked_by", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
-            ["initiator_user_id"],
-            ["users.id"],
+            ["initiator_user_id"], ["users.id"], ondelete="CASCADE"
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],

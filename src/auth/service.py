@@ -3,15 +3,14 @@ from typing import List
 
 import sqlalchemy.exc
 from jose import jwt
-from sqlalchemy import and_
 from sqlalchemy import delete
-from sqlalchemy import or_
 from sqlalchemy import select
 
 from src.auth.models import User
 from src.database import SessionLocal
 
 from .constants import JWT_SECRET_KEY
+from .exceptions import InvalidApproveRequest
 from .exceptions import InvalidFriendRequest
 from .exceptions import UserCreationFailed
 from .exceptions import UserNotFound
@@ -47,7 +46,7 @@ def create_user(user: UserCreate) -> User:
             return user
         except Exception:
             # TODO: log e
-            raise UserCreationFailed(status_code=400, detail="User can not be created")
+            raise UserCreationFailed(status_code=400, detail="User can not be created.")
 
 
 def remove_user(user_id: int) -> User:
@@ -62,7 +61,7 @@ def get_user_by_username(username: str) -> User:
         stmt = select(User).where(User.username == username)
         user = session.scalar(stmt)
         if not user:
-            raise UserNotFound(status_code=404, detail="User not found")
+            raise UserNotFound(status_code=404, detail="User not found.")
         return user
 
 
@@ -71,12 +70,21 @@ def get_user_by_id(user_id: int) -> User:
         stmt = select(User).where(User.id == user_id)
         user = session.scalar(stmt)
         if not user:
-            raise UserNotFound(status_code=404, detail="User not found")
+            raise UserNotFound(status_code=404, detail="User not found.")
         return user
 
 
 def send_friend_request(initiator_user: int, user: int):
     with SessionLocal() as session:
+        stmt = (
+            select(Friends)
+            .where(Friends.initiator_user_id == user)
+            .where(Friends.user_id == initiator_user)
+        )
+        if session.scalar(stmt):
+            raise InvalidFriendRequest(
+                status_code=400, detail="You have already been requested by this user."
+            )
         friendship = Friends(
             initiator_user_id=initiator_user, user_id=user, state=FriendsState.Requested
         )
@@ -84,7 +92,10 @@ def send_friend_request(initiator_user: int, user: int):
         try:
             session.commit()
         except sqlalchemy.exc.IntegrityError:
-            raise InvalidFriendRequest(status_code=400, detail="Invalid friend request")
+            raise InvalidFriendRequest(
+                status_code=400,
+                detail="You have already sent this user a friend request.",
+            )
 
 
 def get_friends(user_id: int) -> List[User]:
@@ -112,7 +123,10 @@ def get_friends(user_id: int) -> List[User]:
 def get_sent_requests(user_id: int) -> List[User]:
     with SessionLocal() as session:
         stmt = (
-            select(User).join(Friends.user).where(Friends.initiator_user_id == user_id)
+            select(User)
+            .join(Friends.user)
+            .where(Friends.initiator_user_id == user_id)
+            .where(Friends.state == FriendsState.Requested)
         )
         return session.scalars(stmt).all()
 
@@ -120,22 +134,36 @@ def get_sent_requests(user_id: int) -> List[User]:
 def get_received_requests(user_id: int) -> List[User]:
     with SessionLocal() as session:
         stmt = (
-            select(User).join(Friends.initiator_user).where(Friends.user_id == user_id)
+            select(User)
+            .join(Friends.initiator_user)
+            .where(Friends.user_id == user_id)
+            .where(Friends.state == FriendsState.Requested)
         )
         return session.scalars(stmt).all()
 
 
-def remove_friendship(user1_id: int, user2_id: int):
+def approve_friend_request(approver: int, user_id: int):
     with SessionLocal(expire_on_commit=False) as session:
-        stmt = delete(Friends).where(
-            or_(
-                and_(
-                    Friends.initiator_user_id == user1_id, Friends.user_id == user2_id
-                ),
-                and_(
-                    Friends.initiator_user_id == user2_id, Friends.user_id == user1_id
-                ),
-            )
+        stmt = (
+            select(Friends)
+            .where(Friends.initiator_user_id == user_id)
+            .where(Friends.user_id == approver)
         )
-        session.execute(stmt)
+        friendship = session.scalar(stmt)
+        if not friendship:
+            raise InvalidApproveRequest(
+                status_code=400, detail="This user did not send you a friend request."
+            )
+        if friendship.state == FriendsState.Approved:
+            raise InvalidApproveRequest(
+                status_code=400, detail="You are already friends with this user."
+            )
+        friendship.state = FriendsState.Approved
         session.commit()
+        return friendship
+
+
+def get_all_users():
+    with SessionLocal(expire_on_commit=False) as session:
+        stmt = select(User)
+        return session.scalars(stmt).all()

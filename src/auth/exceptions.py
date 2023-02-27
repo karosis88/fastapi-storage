@@ -15,3 +15,7 @@ class InvalidFriendRequest(HTTPException):
 
 class FriendshipNotFound(HTTPException):
     ...
+
+
+class InvalidApproveRequest(HTTPException):
+    ...
