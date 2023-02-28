@@ -9,6 +9,7 @@ from .dependencies import get_self
 from .dependencies import get_self_id
 from .dependencies import get_user_id
 from .dependencies import is_admin
+from .models import User
 from .schemas import FriendsView
 from .schemas import UserAdminView
 from .schemas import UserCreate
@@ -47,13 +48,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": create_jwt(payload)}
 
 
-@router.post("/remove")
+@router.post("/remove", response_model=UserView)
 def remove(self_user_id: int = Depends(get_self_id)):
     return remove_user(self_user_id)
 
 
 @router.get("/me", response_model=UserView)
-def me(self_user=Depends(get_self)):
+def me(self_user: User = Depends(get_self)):
     return self_user
 
 

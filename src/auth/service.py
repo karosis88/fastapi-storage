@@ -51,9 +51,10 @@ def create_user(user: UserCreate) -> User:
 
 def remove_user(user_id: int) -> User:
     with SessionLocal(expire_on_commit=False) as session:
-        stmt = delete(User).where(User.id == user_id)
-        session.execute(stmt)
+        stmt = delete(User).where(User.id == user_id).returning(User)
+        user = session.scalar(stmt)
         session.commit()
+        return user
 
 
 def get_user_by_username(username: str) -> User:
