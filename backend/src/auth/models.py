@@ -9,7 +9,6 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
-
 from src.database import BASE
 
 from .schemas import FriendsState

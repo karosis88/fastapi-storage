@@ -5,7 +5,6 @@ import sqlalchemy.exc
 from jose import jwt
 from sqlalchemy import delete
 from sqlalchemy import select
-
 from src.auth.models import User
 from src.database import SessionLocal
 
