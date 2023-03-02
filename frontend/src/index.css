@@ -35,12 +35,50 @@ h2 {
   justify-content: space-between;
 }
 
-.title, .login-link, .signup-link {
+.title, .login-link, .signup-link, .upload-link {
   margin: 0 15px;
   color: black;
 }
 
 
-.title:hover, .login-link:hover, .signup-link:hover {
+.title:hover, .login-link:hover, .signup-link:hover, .upload-link:hover {
   color: red;
+}
+
+.file {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.filename {
+  width: 200px;
+}
+
+.filewrapper {
+  margin-top: 100px;
+}
+
+.filestitle {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.buttons-wrapper > button {
+  margin-left: 5px;
+}
+
+.uploadwrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.main-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }

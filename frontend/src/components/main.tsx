@@ -14,9 +14,8 @@ function Main() {
     return (
         <div>
                 <HeaderBar/>
-                {pending && <div>Loading...</div>}
-                {!pending && data &&<div>Loged in as {data.username}</div>}
-                {error && <div>Loged in as Anonymous</div>}
+
+                <h1 className='main-title'>Main Page</h1>
         </div>
     ) 
 }
