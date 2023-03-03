@@ -41,4 +41,4 @@ class File(BASE):
 
     storage = relationship(Storage, back_populates="files")
 
-    __table_args__ = (UniqueConstraint(name, name="unname"),)
+    __table_args__ = (UniqueConstraint(name, storage_id, name="unname"),)

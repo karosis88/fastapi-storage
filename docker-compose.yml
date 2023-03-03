@@ -9,7 +9,7 @@ services:
     depends_on:
       - web
       - db
-
+ 
   web:
     build: backend
     ports:

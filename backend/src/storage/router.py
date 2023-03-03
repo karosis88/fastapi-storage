@@ -22,6 +22,7 @@ router = APIRouter()
 
 @router.post("/upload", response_model=FileView)
 async def upload(self_user_id: int = Depends(get_self_id), file: UploadFile = Form()):
+    print(file.filename)
     return await add_file_to_storage(user_id=self_user_id, file=file)
 
 
