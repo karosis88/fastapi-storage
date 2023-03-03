@@ -7,8 +7,7 @@ from src.auth.router import router as auth_router
 from src.storage.router import router as storage_router
 
 origins = [
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
+    "*"
 ]
 
 app = FastAPI()

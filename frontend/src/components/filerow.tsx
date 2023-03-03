@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 
 type file = {
@@ -14,15 +14,16 @@ export default function FileRow (props: file) {
     const [pending, setPending] = useState<boolean>()
     const [erro, setError] = useState<string | null>()
 
+    let credentials: string = localStorage.getItem('auth') as string
+    let headers: any;
+
+    if (credentials)
+        headers = {"Authorization": 'Bearer ' + JSON.parse(credentials).access_token}
+    else
+        headers = {}
 
     const handleRemove = async () => {
-        let credentials: string = localStorage.getItem('auth') as string
-        let headers
 
-        if (credentials)
-            headers = {"Authorization": 'Bearer ' + JSON.parse(credentials).access_token}
-        else
-            headers = {}
     
 
         try {
@@ -30,7 +31,6 @@ export default function FileRow (props: file) {
             let response: Response = await fetch(`http://127.0.0.1:8000/storage/remove?file_name=${props.name}`,
                 {"method" : "POST",
                  "headers": headers})
-            console.log(await response.text())
             if (!response.ok) {
                 return
             }
@@ -42,7 +42,6 @@ export default function FileRow (props: file) {
         }
 
         catch (error) {
-            console.log(error)
             setError("Connection error")
         }
 
@@ -50,6 +49,17 @@ export default function FileRow (props: file) {
             setPending(false)
         }
     }
+
+    useEffect(() => {
+        fetch(`http://127.0.0.1:8000/storage/file/${props.name}`, {headers: headers})
+            .then(resp => resp.blob())
+            .then(blobby => {
+                let objectUrl = window.URL.createObjectURL(blobby)
+                let link = document.getElementById('downl') as any
+                link.href = objectUrl
+                link.download = props.name
+            } )
+    }, [])
 
     return (
     <div>
@@ -59,7 +69,7 @@ export default function FileRow (props: file) {
             <div className="fsize">Size: {props.size}kb</div>
             
             <div className="buttons-wrapper">
-                <button type="button">Download</button>
+                <a id="downl" type="button">Download</a>
                 <button type="button" onClick={async () => await handleRemove()}>Remove</button>
             </div>
             

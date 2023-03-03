@@ -1,0 +1,6 @@
+.flake8
+.isort.cfg
+.pre-commit-config.yaml
+test.py
+venv/
+*/__pycache__/

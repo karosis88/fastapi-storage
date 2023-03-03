@@ -90,3 +90,21 @@ def remove_file_by_name(user_id: int, file_name: str) -> File:
         else:
             raise HTTPException(status_code=404, detail="File not found")
         return file
+
+
+def download_file_by_name(user_id: int, file_name: str):
+    with SessionLocal(expire_on_commit=False) as session:
+        stmt = (
+            select(Storage)
+            .where(Storage.owner_id == user_id)
+            .options(joinedload(Storage.files))
+        )
+        storage = session.scalar(stmt)
+        if not storage:
+            raise HTTPException(status_code=404, detail="Storage was not found")
+        for file in storage.files:
+            if file.name == file_name:
+                break
+        else:
+            raise HTTPException(status_code=404, detail="File not found")
+        return file.binary_data

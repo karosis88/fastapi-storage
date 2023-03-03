@@ -10,7 +10,6 @@ export default function Login() {
     const submitHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
         let usernameValue: String = (document.getElementById("username") as HTMLInputElement).value
         let passwordValue: String = (document.getElementById("password") as HTMLInputElement).value
-        console.log(usernameValue, passwordValue)
         
         try {
             let response: Response = await fetch(`http://127.0.0.1:8000/auth/login`, {

@@ -10,7 +10,6 @@ const Signup = () => {
         let usernameValue: String = (document.getElementById("username") as HTMLInputElement).value
         let passwordValue: String = (document.getElementById("password") as HTMLInputElement).value
 
-        console.log("sending")
 
         try {
             let response: Response = await fetch("http://127.0.0.1:8000/auth/signup", {
@@ -25,13 +24,11 @@ const Signup = () => {
             })
             let content = await response.json()
             if (!response.ok) {
-                console.log(content)
                 setError(content["detail"])
                 return
             }
             setError(null)
             setCreated(true)
-            console.log(content)
 
         }
         catch (error: any) {
